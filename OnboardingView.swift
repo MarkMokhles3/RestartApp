@@ -12,6 +12,9 @@ struct OnboardingView: View {
     
     @AppStorage("onboarding") var isOnboardingViewActive: Bool = true // this true value will not only be added to the property when the program does not find the ONBOARDING key previously set in the device's permenant storage
     // When the running program finds a previously created ONBOARDING key, then it will ignore the value set no matter what is there
+    @State private var buttonWidth: Double = UIScreen.main.bounds.width - 80 // this is a computed property
+    @State private var buttonOffset: CGFloat = 0
+    
     // MARK: - BODY
     
     var body: some View {
@@ -80,7 +83,7 @@ struct OnboardingView: View {
                     HStack {
                         Capsule()
                             .fill(Color("ColorRed"))
-                            .frame(width: 80)
+                            .frame(width: buttonOffset + 80)
                         
                         Spacer()
                     }
@@ -99,13 +102,30 @@ struct OnboardingView: View {
                         }
                         .foregroundColor(.white)
                         .frame(width: 80, height: 80, alignment: .center)
-                        .onTapGesture {
-                            isOnboardingViewActive = false
-                        }
+                        .offset(x: buttonOffset)
+//                        .onTapGesture {
+//                            isOnboardingViewActive = false
+//                        }
+                        .gesture(
+                        DragGesture()
+                            .onChanged({ gesture in
+                                if gesture.translation.width > 0 && buttonOffset <= buttonWidth - 80 { // it will only run when the dragging has been started in the right direction
+                                    buttonOffset = gesture.translation.width //We are capturing the actual movement's width for later use
+                                }
+                            })
+                            .onEnded({ _ in
+                                if buttonOffset > buttonWidth / 2 {
+                                    buttonOffset = buttonWidth - 80
+                                    isOnboardingViewActive = false
+                                } else {
+                                    buttonOffset = 0
+                                }
+                            })
+                        ) //: GESTURE
                         Spacer()
                     } //: HSTACK
                 } //: FOOTER
-                .frame(height: 80, alignment: .center)
+                .frame(width: buttonWidth, height: 80, alignment: .center)
                 .padding()
             } //: VSTACK
         } //: ZSTACK

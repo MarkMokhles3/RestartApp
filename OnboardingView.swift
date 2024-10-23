@@ -14,6 +14,7 @@ struct OnboardingView: View {
     // When the running program finds a previously created ONBOARDING key, then it will ignore the value set no matter what is there
     @State private var buttonWidth: Double = UIScreen.main.bounds.width - 80 // this is a computed property
     @State private var buttonOffset: CGFloat = 0
+    @State private var isAnmating: Bool = false // like a switcher
     
     // MARK: - BODY
     
@@ -42,6 +43,9 @@ struct OnboardingView: View {
                     .multilineTextAlignment(.center)
                     .padding(.horizontal, 10)
                 } //: HEADER
+                .opacity(isAnmating ? 1 : 0) // ternaroy operator a ? b : c .. condition ? true : false
+                .offset(y: isAnmating ? 0 : -40)
+                .animation(.easeOut(duration: 1), value: isAnmating)
                 
                 // MARK: - CENTER
                 
@@ -51,6 +55,8 @@ struct OnboardingView: View {
                     Image("character-1")
                         .resizable()
                         .scaledToFit()
+                        .opacity(isAnmating ? 1 : 0)
+                        .animation(.easeOut(duration: 0.5), value: isAnmating)
                 } //: CENTER
                 
                 Spacer()
@@ -114,11 +120,13 @@ struct OnboardingView: View {
                                 }
                             })
                             .onEnded({ _ in
-                                if buttonOffset > buttonWidth / 2 {
-                                    buttonOffset = buttonWidth - 80
-                                    isOnboardingViewActive = false
-                                } else {
-                                    buttonOffset = 0
+                                withAnimation(Animation.easeOut(duration: 0.4)) {
+                                    if buttonOffset > buttonWidth / 2 {
+                                        buttonOffset = buttonWidth - 80
+                                        isOnboardingViewActive = false
+                                    } else {
+                                        buttonOffset = 0
+                                    }
                                 }
                             })
                         ) //: GESTURE
@@ -127,8 +135,14 @@ struct OnboardingView: View {
                 } //: FOOTER
                 .frame(width: buttonWidth, height: 80, alignment: .center)
                 .padding()
+                .opacity(isAnmating ? 1 : 0)
+                .offset(y: isAnmating ? 0 : 40)
+                .animation(.easeOut(duration: 1), value: isAnmating)
             } //: VSTACK
         } //: ZSTACK
+        .onAppear(perform: {
+            isAnmating = true
+        })
     }
 }
 

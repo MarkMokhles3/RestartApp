@@ -8,12 +8,14 @@
 import SwiftUI
 
 struct HomeView: View {
+    // MARK: - PROPERTY
+    
+    @AppStorage("onboarding") var isOnboardingViewActive: Bool = false
+    @State private var isAnmating: Bool = false
+    
+    // MARK: - BODY
+    
     var body: some View {
-        // MARK: - PROPERTY
-        
-        @AppStorage("onboarding") var isOnboardingViewActive: Bool = false
-        
-        // MARK: - BODY
         VStack(spacing: 20) {
             // MARK: - HEADER
             
@@ -25,6 +27,11 @@ struct HomeView: View {
                     .resizable()
                     .scaledToFit()
                 .padding()
+                .offset(y: isAnmating ? 35 : -35)
+                .animation(
+                    .easeInOut(duration: 4)
+                    .repeatForever(),
+                    value: isAnmating)
             }
             
             // MARK: - CENTER
@@ -41,7 +48,9 @@ struct HomeView: View {
             Spacer()
             
             Button {
-                isOnboardingViewActive = true
+                withAnimation {
+                    isOnboardingViewActive = true
+                }
             } label: {
                 Image(systemName: "arrow.triangle.2.circlepath.circle.fill")
                     .imageScale(.large)
@@ -53,6 +62,11 @@ struct HomeView: View {
             .buttonBorderShape(.capsule)
             .controlSize(.large)
         } // : VSTACK
+        .onAppear {
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.5 /*3*/ , execute: {
+                isAnmating = true
+            }) // we are telling the program to run our code inside the closure three seconds later from now on the main thread ... nothing will happend on the first three seconds
+        }
     }
 }
 
